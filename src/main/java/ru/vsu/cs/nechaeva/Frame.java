@@ -23,7 +23,7 @@ public class Frame extends JFrame {
     private JMenuItem itemHelp;
     private JMenuItem itemAutor;
     Frame() {
-        super("Sea Fight");
+        super("World of Warships");
         Panel pole=new Panel();
         menuBar=new JMenuBar();
         menuGame = new JMenu("Игра");
@@ -41,13 +41,6 @@ public class Frame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pole.startRasstanovka();
-            }
-        });
-        itemAuto=new JMenuItem("Автоигра");
-        itemAuto.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                pole.startAutoGame();
             }
         });
         itemExit=new JMenuItem("Выход");
@@ -69,7 +62,9 @@ public class Frame extends JFrame {
                                 "   2 корабля - ряд из 3 клеток \"трёхпалубные\"\n" +
                                 "   3 корабля - ряд из 2 клеток \"двухпалубные\"\n" +
                                 "   4 корабля - ряд из 1 клеточки \"однопалубые\".\n" +
-                                "При размещении корабли не могут касаться друг друга углами .\n" +
+                                "   1 корабля - ряд из 1 клточки \" тральщик\".\n" +
+                                "   3 мины. \n" +
+                                "При размещении корабли и мины не могут касаться друг друга углами .\n" +
                                 "Палубы кораблей надо строить «в линейку», а не изгибами.\n" +
                                 "Главное: нельзя строить палубы одного корабля по диагонали.\n" +
                                 "Игрок, выполняющий ход, совершает выстрел.\n"+
@@ -87,8 +82,8 @@ public class Frame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 JFrame frame = new JFrame("JOptionPane showMessageDialog");
                 JOptionPane.showMessageDialog(frame,
-                        "Автор: Малкиев Л.В \nГруппа: ИНФ-14\nУральский государственный горный университет\n" +
-                                "Екатеринбург 2016",
+                        "Автор: Нечаева Ксения Владимировна. \nГруппа: 3.1\nВоронежский государственный университет\n" +
+                                "Воронеж 2024 \n АКА разработка wargaming",
                         "Автор", JOptionPane.INFORMATION_MESSAGE);
 
 
@@ -97,7 +92,6 @@ public class Frame extends JFrame {
         menuGameStart.add(itemStartAuto);
         menuGameStart.add(itemStartRast);
         menuGame.add(menuGameStart);
-        menuGame.add(itemAuto);
         menuGame.add(itemExit);
         menuHelp.add(itemHelp);
         menuHelp.add(itemAutor);
@@ -108,7 +102,6 @@ public class Frame extends JFrame {
         container.add(pole);
         setSize(pole.getSize());
         setResizable(false);
-        //setLayout(null); //возможность произвольной расстановки
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         try {
             setIconImage(ImageIO.read(getClass().getResource("/image/icon.png")));

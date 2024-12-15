@@ -1,16 +1,10 @@
 package ru.vsu.cs.nechaeva;
 
-//для работы с изображениями
-// тут идет работа с отрисовкой
 
 import javax.imageio.ImageIO;
-//для работы с графикой
 import javax.swing.*;
-//для работы с окнами
 import java.awt.*;
-//для обработки событий мыши
 import java.awt.event.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -19,12 +13,9 @@ public class Panel extends JPanel {
     private final int DXY = 60;
     private final int H = 23;
     private String number[] = {"А", "Б", "В", "Г", "В", "Е", "Ж", "З", "И", "К"};
-    // Переменная для реализации логики игры
     private Game game;
-    private int mX, mY; //коорд мыши
-    //Таймер отрисовки и изменения логики игры
+    private int mX, mY;
     private Timer timer;
-    //Изображения, используемые в игре
     private BufferedImage ranen, boom, killed, paluba, mine, tralP;
     private BufferedImage ship4, ship3, ship2, ship1, tral, mina;
     private BufferedImage shipV4, shipV3, shipV1, shipV2, tralV;
@@ -37,12 +28,12 @@ public class Panel extends JPanel {
     private boolean isSelectT = false;
     private boolean isSelectM = false;
     private int p5, p4, p3, p2, p1, p0;
-    public boolean vert = true; //направление расстановки
+    public boolean vert = true;
     private JButton checkNapr;
     public static boolean rasstanovka;
 
-    private JButton placeMineButton; // Кнопка для установки мины
-    private int minesPlaced = 0; // Счетчик установленных мин
+    private JButton placeMineButton;
+    private int minesPlaced = 0;
 
 
     public Panel() {
@@ -58,7 +49,7 @@ public class Panel extends JPanel {
             paluba = ImageIO.read(getClass().getResource("/image/paluba.png"));
             mina = ImageIO.read(getClass().getResource("/image/ship/mine.png"));
             mine = ImageIO.read(getClass().getResource("/image/mina.png"));
-            tralP = ImageIO.read(getClass().getResource("/image/tralO.png"));
+            tralP = ImageIO.read(getClass().getResource("/image/tralP.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -81,24 +72,6 @@ public class Panel extends JPanel {
         });
         add(checkNapr);
         checkNapr.setVisible(false);
-
-        JButton placeMineButton = new JButton("Установить мину");
-        placeMineButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (game.setMine((mX - DXY) / H, (mY - DXY) / H, true)) {
-                    minesPlaced++;
-                    repaint();  // Обновляем панель для отображения установленных мин
-                    if (minesPlaced >= 3) { // Предотвращаем установку более 3 мин
-                        placeMineButton.setEnabled(false);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Все мины уже установлены или координаты некорректны!");
-                }
-            }
-        });
-
-        add(placeMineButton); // Добавляем кнопку на панель
     }
 
 
@@ -171,7 +144,6 @@ public class Panel extends JPanel {
                 checkNapr.setVisible(false);
             }
         }
-        //Выведение надписей
         g.drawString("Игрок", DXY + 4 * H, DXY - H);
         g.drawString("Компьютер", DXY + 16 * H, DXY - H);
         g.drawString("Ходов игрока: ", DXY + 23 * H, 30 + DXY + 13 * H - (H / 4));
@@ -179,145 +151,85 @@ public class Panel extends JPanel {
         g.drawString("Ходов комьютера: ", DXY + 23 * H, 30 + DXY + 14 * H - (H / 4));
         g.drawString(String.valueOf(game.kolHodComp), DXY + 30 * H + (H / 2), 30 + DXY + 14 * H - (H / 4));
 
-        //Выводим цифры и буквы
         for (int i = 1; i <= 10; i++) {
-            //12345678910
             g.drawString(String.valueOf(i), DXY - H, DXY + i * H - (H / 4));
             g.drawString(String.valueOf(i), DXY + 12 * H, DXY + i * H - (H / 4));
-            //абвгдежзик
             g.drawString(number[i - 1], DXY + (i - 1) * H + (H / 4), DXY - 3);
             g.drawString(number[i - 1], 13 * H + DXY + (i - 1) * H + (H / 4), DXY - 3);
         }
 
-        //отрисовка игрового поля на основании массива
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                //корабли противника
-                if (game.masComp[i][j] != 0) {
-                    //если игра пк против пк, то показываем палубы комьютера
-                    if ((game.masComp[i][j] >= 1) && (game.masComp[i][j] <= 5 && Game.gamePkVsPk)) {
-                        g.drawImage(paluba, DXY + 13 * H + H * i, DXY + H * j, H, H, null);
-                    }
-                    //Если это палуба раненного корабля, то выводим соотвествующее изображение
-                    else if ((game.masComp[i][j] >= 8) && (game.masComp[i][j] <= 11)) {
-                        g.drawImage(ranen, DXY + 13 * H + H * i, DXY + H * j, H, H, null);
-                    } else if ((game.masComp[i][j] >= 15)) {
-                        //рисуем палубу убитого корабля
-                        g.drawImage(killed, DXY + 13 * H + H * i, DXY + H * j, H, H, null);
-                    } else if ((game.masComp[i][j] >= 5 && game.masComp[i][j] < 8 || game.masComp[i][j] == -2)) {
-                        //если выстрел мимо и это окружение убитого корабля
-                        g.drawImage(boom, DXY + 13 * H + H * i, DXY + H * j, H, H, null);
-                    } else if (Game.endGame != 0 && (game.masComp[i][j] >= 1 && game.masComp[i][j] <= 4)) {
-                        //показываем корабли после конца игры
-                        g.drawImage(paluba, DXY + 13 * H + H * i, DXY + H * j, H, H, null);
-                        g.setColor(new Color(0x8B0000));
-                        g.drawRect(DXY + 13 * H + H * i, DXY + H * j, H, H);
-                    }
-                }
+        for (int i = DXY; i <= DXY + 10 * H; i += H) {
+            g2.setStroke(new BasicStroke(1));
+            g.setColor(new Color(202, 202, 255));
+            g.drawLine(DXY, i, DXY + 10 * H, i); // ----
+            g.drawLine(i, DXY, i, DXY + 10 * H);
+            g.drawLine(DXY + 13 * H, i, DXY + 23 * H, i); //бот ---
+            g.drawLine(i + 13 * H, DXY, i + 13 * H, DXY + 10 * H);
 
-                //корабли игрока
-                if (game.masPlay[i][j] != 0) {
-                    if ((game.masPlay[i][j] >= 1) && (game.masPlay[i][j] <= 4)) {
-                        //палуба
-                        g.drawImage(paluba, DXY + H * i, DXY + H * j, H, H, null);
-                    } else if ((game.masPlay[i][j] >= 8) && (game.masPlay[i][j] <= 11)) {
-                        //ранен
-                        g.drawImage(ranen, DXY + +H * i, DXY + H * j, H, H, null);
-                    } else if ((game.masPlay[i][j] >= 15)) {
-                        //убит
-                        g.drawImage(killed, DXY + H * i, DXY + H * j, H, H, null);
-                    } else if ((game.masPlay[i][j] >= 5) && game.masPlay[i][j] < 8) {
-                        //мимо
-                        g.drawImage(boom, DXY + +H * i, DXY + H * j, H, H, null);
-                    } else if (Game.gamePkVsPk && game.masPlay[i][j] == -2) {
-                        //окружения убитого в автоигре
-                        g.drawImage(boom, DXY + +H * i, DXY + H * j, H, H, null);
-                    }
-                }
-            }
-        }
-        for (int mine : game.playerMines) {
-            if (mine != 0) {
-                int mineI = mine / 10;
-                int mineJ = mine % 10;
-                g.drawImage(mina, DXY + H * mineI, DXY + H * mineJ, H, H, null);
-            }
-
-
-            //линии
-            for (int i = DXY; i <= DXY + 10 * H; i += H) {
-                g2.setStroke(new BasicStroke(1));
-                g.setColor(new Color(202, 202, 255));
-                g.drawLine(DXY, i, DXY + 10 * H, i); // ----
-                g.drawLine(i, DXY, i, DXY + 10 * H);
-                g.drawLine(DXY + 13 * H, i, DXY + 23 * H, i); //бот ---
-                g.drawLine(i + 13 * H, DXY, i + 13 * H, DXY + 10 * H);
-
-                g2.setStroke(new BasicStroke(2));
-                g.setColor(new Color(330099));
-                g.drawRect(DXY, DXY, 10 * H, 10 * H);
-                g.drawRect(DXY + 13 * H, DXY, 10 * H, 10 * H);
-            }
-
-            g.setFont(new Font("Times New Roman", 0, H));
+            g2.setStroke(new BasicStroke(2));
             g.setColor(new Color(330099));
+            g.drawRect(DXY, DXY, 10 * H, 10 * H);
+            g.drawRect(DXY + 13 * H, DXY, 10 * H, 10 * H);
+        }
 
-            //количество кораблей игрока
-            g.drawImage(shipV4, DXY, DXY + 11 * H, 4 * H, H, null);
-            g.drawString(String.valueOf(1 - game.C4), DXY + 5 * H, DXY + 12 * H - (H / 4));
+        g.setFont(new Font("Times New Roman", 0, H));
+        g.setColor(new Color(330099));
 
-            g.drawImage(shipV3, DXY, DXY + 12 * H + 10, 3 * H, H, null);
-            g.drawString(String.valueOf(2 - game.C3), DXY + 4 * H, DXY + 13 * H + 10);
+        g.drawImage(shipV4, DXY, DXY + 11 * H, 4 * H, H, null);
+        g.drawString(String.valueOf(1 - game.C4), DXY + 5 * H, DXY + 12 * H - (H / 4));
 
-            g.drawImage(shipV2, DXY, DXY + 13 * H + 20, 2 * H, H, null);
-            g.drawString(String.valueOf(3 - game.C2), DXY + 3 * H, DXY + 14 * H + 20);
+        g.drawImage(shipV3, DXY, DXY + 12 * H + 10, 3 * H, H, null);
+        g.drawString(String.valueOf(2 - game.C3), DXY + 4 * H, DXY + 13 * H + 10);
 
-            g.drawImage(shipV1, DXY, DXY + 14 * H + 30, H, H, null);
-            g.drawString(String.valueOf(4 - game.C1), DXY + 2 * H, DXY + 15 * H + 30);
+        g.drawImage(shipV2, DXY, DXY + 13 * H + 20, 2 * H, H, null);
+        g.drawString(String.valueOf(3 - game.C2), DXY + 3 * H, DXY + 14 * H + 20);
 
-            g.drawImage(tralV, DXY, DXY + 15 * H + 40, H, H, null);
-            g.drawString(String.valueOf(1 - game.CT), DXY + 2 * H, DXY + 16 * H + 40);
+        g.drawImage(shipV1, DXY, DXY + 14 * H + 30, H, H, null);
+        g.drawString(String.valueOf(4 - game.C1), DXY + 2 * H, DXY + 15 * H + 30);
 
-            g.drawImage(mina, DXY, DXY + 16 * H + 50, H, H, null);
-            g.drawString(String.valueOf(3 - game.CM), DXY + 2 * H, DXY + 17 * H + 40);
+        g.drawImage(tralV, DXY, DXY + 15 * H + 40, H, H, null);
+        g.drawString(String.valueOf(1 - game.CT), DXY + 2 * H, DXY + 16 * H + 40);
+
+        g.drawImage(mina, DXY, DXY + 16 * H + 50, H, H, null);
+        g.drawString(String.valueOf(3 - game.CM), DXY + 2 * H, DXY + 17 * H + 40);
 
 
-            g.drawImage(shipV4, DXY + 13 * H, DXY + 11 * H, 4 * H, H, null);//4 палуб
-            g.drawString(String.valueOf(1 - game.P4), DXY + 18 * H, DXY + 12 * H - (H / 4));
+        g.drawImage(shipV4, DXY + 13 * H, DXY + 11 * H, 4 * H, H, null);//4 палуб
+        g.drawString(String.valueOf(1 - game.P4), DXY + 18 * H, DXY + 12 * H - (H / 4));
 
-            g.drawImage(shipV3, DXY + 13 * H, DXY + 12 * H + 10, 3 * H, H, null);  //3
-            g.drawString(String.valueOf(2 - game.P3), DXY + 17 * H, DXY + 13 * H + 10);
+        g.drawImage(shipV3, DXY + 13 * H, DXY + 12 * H + 10, 3 * H, H, null);  //3
+        g.drawString(String.valueOf(2 - game.P3), DXY + 17 * H, DXY + 13 * H + 10);
 
-            g.drawImage(shipV2, DXY + 13 * H, DXY + 13 * H + 20, 2 * H, H, null);
-            g.drawString(String.valueOf(3 - game.P2), DXY + 16 * H, DXY + 14 * H + 20);
+        g.drawImage(shipV2, DXY + 13 * H, DXY + 13 * H + 20, 2 * H, H, null);
+        g.drawString(String.valueOf(3 - game.P2), DXY + 16 * H, DXY + 14 * H + 20);
 
-            g.drawImage(shipV1, DXY + 13 * H, DXY + 14 * H + 30, 1 * H, H, null);
-            g.drawString(String.valueOf(4 - game.P1), DXY + 15 * H, DXY + 15 * H + 30);
+        g.drawImage(shipV1, DXY + 13 * H, DXY + 14 * H + 30, 1 * H, H, null);
+        g.drawString(String.valueOf(4 - game.P1), DXY + 15 * H, DXY + 15 * H + 30);
 
-            g.drawImage(tralV, DXY + 13 * H, DXY + 15 * H + 40, H, H, null);
-            g.drawString(String.valueOf(1 - game.PT), DXY + 15 * H, DXY + 16 * H + 40);
+        g.drawImage(tralV, DXY + 13 * H, DXY + 15 * H + 40, H, H, null);
+        g.drawString(String.valueOf(1 - game.PT), DXY + 15 * H, DXY + 16 * H + 40);
 
-            g.drawImage(mina, DXY + 13 * H, DXY + 16 * H + 50, H, H, null);
-            g.drawString(String.valueOf(3 - game.PM), DXY + 15 * H, DXY + 17 * H + 50);
+        g.drawImage(mina, DXY + 13 * H, DXY + 16 * H + 50, H, H, null);
+        g.drawString(String.valueOf(3 - game.PM), DXY + 15 * H, DXY + 17 * H + 50);
 
-            if (Game.endGame == 0 && (p1 + p2 + p3 + p4) == 0 && rasstanovka || Game.endGame == 0 && !rasstanovka) {
-                g.setFont(new Font("Times New Roman", 0, H - 5));
-                if (game.myHod) {
-                    g.setColor(Color.green);
-                    g.drawString("Ход игрока", DXY + 24 * H, DXY + 12 * H - (H / 4));
-                } else {
-                    g.setColor(Color.red);
-                    g.drawString("Ходит компьютер", DXY + 24 * H, DXY + 12 * H - (H / 4));
-                }
-            }
-            if (Game.endGame == 1) {
-                timer.stop();
-
-            }
-            if (Game.endGame == 2) {
-                timer.stop();
+        if (Game.endGame == 0 && (p1 + p2 + p3 + p4) == 0 && rasstanovka || Game.endGame == 0 && !rasstanovka) {
+            g.setFont(new Font("Times New Roman", 0, H - 5));
+            if (game.myHod) {
+                g.setColor(Color.green);
+                g.drawString("Ход игрока", DXY + 24 * H, DXY + 12 * H - (H / 4));
+            } else {
+                g.setColor(Color.red);
+                g.drawString("Ходит компьютер", DXY + 24 * H, DXY + 12 * H - (H / 4));
             }
         }
+        if (Game.endGame == 1) {
+            timer.stop();
+
+        }
+        if (Game.endGame == 2) {
+            timer.stop();
+        }
+
     }
 
     public void start() {
@@ -340,15 +252,6 @@ public class Panel extends JPanel {
         p5 = 3;
     }
 
-    public void startAutoGame() {
-        rasstanovka = false;
-        checkNapr.setVisible(false);
-        timer.start();
-        Game.gamePkVsPk = true;
-        game.autoGame();
-
-    }
-
     public void exit() {
         System.exit(0);
     }
@@ -363,35 +266,6 @@ public class Panel extends JPanel {
         @Override
         public void mousePressed(MouseEvent e) {
             if ((e.getButton() == 1) && (e.getClickCount() == 1)) {
-                mX = e.getX();
-                mY = e.getY();
-                int i = (mX - (DXY + 13 * H)) / H;
-                int j = (mY - DXY) / H;
-
-                // Проверяем, попал ли игрок на мину
-                game.checkMine(i, j, true);
-                // Если сделано одиночное нажатие левой клавишей мыши
-                if ((e.getButton() == 1) && (e.getClickCount() == 1)) {
-                    mX = e.getX();
-                    mY = e.getY();
-                    if ((rasstanovka && p1 + p2 + p3 + p4 == 0) || !rasstanovka && !Game.gamePkVsPk
-                            && mX > (DXY + 13 * H) && mY > (DXY) && mX < (DXY + 23 * H) && mY < DXY + 10 * H) {
-                        //если внутри поля бота и если не конец игры и ход игрока
-                        if (game.myHod && Game.endGame == 0 && !game.compHod) {
-                            //то вычисляем элемент массива:
-                            i = (mX - (DXY + 13 * H)) / H;
-                            j = (mY - DXY) / H;
-                            if ((i >= 0 && i <= 9) && (j >= 0 && j <= 9)) {
-                                // System.out.println("Мы нажали на " + i+ " " +j);
-                                if (game.masComp[i][j] <= 4 && game.masComp[i][j] >= -1) {
-                                    //-1 это окружение не убитого корабля
-                                    game.attack(game.masComp, i, j);
-                                }
-                            }
-                        }
-
-                    }
-                }
                 if (rasstanovka) {
                     if (selectionArea5.contains(e.getPoint())) {
                         isSelectP4 = false;
@@ -447,9 +321,6 @@ public class Panel extends JPanel {
         }
 
         @Override
-        /**
-         * Клавиша мыши отпущена
-         */
         public void mouseReleased(MouseEvent e) {
             if (rasstanovka) {
                 mX = e.getX();
@@ -514,7 +385,6 @@ public class Panel extends JPanel {
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            // Получаем текущие координаты курсора мыши
             mX = e.getX();
             mY = e.getY();
             int i = (mX - (DXY)) / H;
