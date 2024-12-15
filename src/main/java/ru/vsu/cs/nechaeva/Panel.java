@@ -58,7 +58,7 @@ public class Panel extends JPanel {
             paluba = ImageIO.read(getClass().getResource("/image/paluba.png"));
             mina = ImageIO.read(getClass().getResource("/image/ship/mine.png"));
             mine = ImageIO.read(getClass().getResource("/image/mina.png"));
-            tralP = ImageIO.read(getClass().getResource("/image/tralO.png"));
+            tralP = ImageIO.read(getClass().getResource("/image/tralP.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
