@@ -27,11 +27,11 @@ public class Game {
     /**
      * Показывает количество кораблей игрока
      */
-    public int P1, P2, P3, P4;
+    public int P1, P2, P3, P4, PT, PM;
     /**
      * Показывает количество кораблей компьютера
      */
-    public int C1, C2, C3, C4;
+    public int C1, C2, C3, C4, CT, CM;
     public int kolHodPlay;
     public int kolHodComp;
     /**
@@ -62,9 +62,6 @@ public class Game {
         playerMines = new int[3];
         compMines = new int[3];
     }
-
-
-
 
 
     // Метод для размещения мины
@@ -109,8 +106,6 @@ public class Game {
             }
         }
     }
-
-
 
 
     /**
